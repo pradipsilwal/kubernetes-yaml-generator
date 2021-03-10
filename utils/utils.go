@@ -12,9 +12,10 @@ func CheckError(e error) {
 	}
 }
 
-func GetStrings(fileName string) ([]string, error) {
+func GetFileContentInLines(fileName string) ([]string, error) {
 	var lines []string
 	file, err := os.Open(fileName)
+	defer file.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -34,10 +35,16 @@ func GetStrings(fileName string) ([]string, error) {
 	return lines, err
 }
 
-func GetStringFromSlice(lines []string) string {
+func GetStringFromLines(lines []string) string {
 	var stringLine string
 	for _, line := range lines {
 		stringLine = stringLine + line + "\n"
 	}
 	return stringLine
+}
+func GetStringFromFile(fileName string) string {
+	fileInLines, e := GetFileContentInLines(fileName)
+	CheckError(e)
+	fileInString := GetStringFromLines(fileInLines)
+	return fileInString
 }

@@ -37,16 +37,12 @@ func main() {
 	// get collection as ref'
 	collection := client.Database(DATABASE_NAME).Collection(COLLECTION_NAME)
 
-	lines, e := utils.GetStrings("pod.yaml")
-	utils.CheckError(e)
-	stringLines := utils.GetStringFromSlice(lines)
-	kubeObject := KubeObject{"Pod", stringLines}
+	yamlContent := utils.GetStringFromFile("pod.yaml")
+	kubeObject := KubeObject{"Pod", yamlContent}
 	// insertSingleDocument(kubeObject, collection)
 	printSingleDocument(kubeObject.ObjectName, collection)
-	// updatedLines, e := utils.GetStrings("podupdate.yaml")
-	// utils.CheckError(e)
-	// updatedStringLines := utils.GetStringFromSlice(updatedLines)
-	// updatedKubeObject := KubeObject{"Pod", updatedStringLines}
+	// updatedYamlContent := utils.GetStringFromFile("podupdate.yaml")
+	// updatedKubeObject := KubeObject{"Pod", updatedYamlContent}
 	// updateDocument(updatedKubeObject, collection)
 	// deleteSingleDocument(kubeObject.ObjectName, collection)
 	// printSingleDocument(kubeObject.ObjectName, collection)
