@@ -4,30 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+
+	"github.com/99-devops/kubernetes-yamal-generator/utils"
 )
 
-func Post() {
+func post() {
 	fmt.Println("Performing Http Post...")
-	kubeObject := KubeObject{ObjectName: "DaemonSet", YamlContent: "This is a daemonset"}
-	jsonReq, err := json.Marshal(kubeObject)
 
-	resp, err := http.Post("http://localhost:10000/kubeObject", "application/json; charset=utf-8", bytes.NewBuffer(jsonReq))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	stringYamlContent := utils.GetStringFromFile("deployment.yaml")
 
-	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	kubeObject := KubeObject{ObjectName: "Deployment", YamlContent: stringYamlContent}
 
-	// Convert response body to string
-	bodyString := string(bodyBytes)
-	fmt.Println(bodyString)
+	jsonReq, e := json.Marshal(kubeObject)
+	utils.CheckError(e)
 
-	// Convert response body to KubeObject struct
-	var kubeObjectStruct KubeObject
-	json.Unmarshal(bodyBytes, &kubeObjectStruct)
-	fmt.Printf("%+v\n", kubeObjectStruct)
+	_, e = http.Post("http://localhost:10000/kubeObject", "application/json; charset=utf-8", bytes.NewBuffer(jsonReq))
+	utils.CheckError(e)
 }

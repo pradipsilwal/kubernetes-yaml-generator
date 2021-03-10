@@ -1,29 +1,19 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+
+	"github.com/99-devops/kubernetes-yamal-generator/utils"
 )
 
-func Delete() {
+func delete(kubeObjectName string) {
 	fmt.Println("Performing Http Delete...")
-	kubeObject := KubeObject{"Deployment", "Af"}
-	jsonReq, err := json.Marshal(kubeObject)
-	req, err := http.NewRequest(http.MethodDelete, "http://localhost:10000/kubeObject/"+kubeObject.ObjectName, bytes.NewBuffer(jsonReq))
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	request, e := http.NewRequest("DELETE", "http://localhost:10000/kubeObject/"+kubeObjectName, nil)
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	http.DefaultClient.Do(request)
 
-	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-
-	// Convert response body to string
-	bodyString := string(bodyBytes)
-	fmt.Println(bodyString)
+	fmt.Println("Request: ", request)
+	utils.CheckError(e)
+	fmt.Println("Deleted")
 }

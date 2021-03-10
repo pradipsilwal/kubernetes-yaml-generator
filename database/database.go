@@ -1,7 +1,8 @@
-package main
+package database
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -15,18 +16,18 @@ import (
 )
 
 type KubeObject struct {
-	ObjectName  string
-	YamlContent string
+	ObjectName  string `json:"ObjectName"`
+	YamlContent string `json:"YamlContent"`
 }
 
-func main() {
+func CreateConnection() (*mongo.Collection, context.CancelFunc) {
 	DATABASE_NAME := os.Getenv("DATABASE_NAME")
 	COLLECTION_NAME := os.Getenv("COLLECTION_NAME")
 	DATABASE_USERNAME := os.Getenv("DATABASE_USERNAME")
 	DATABASE_PASSWORD := os.Getenv("DATABASE_PASSWORD")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
 		"mongodb+srv://"+DATABASE_USERNAME+":"+DATABASE_PASSWORD+"@cluster0.u43qj.mongodb.net/"+DATABASE_NAME+"?retryWrites=true&w=majority",
 	))
@@ -36,43 +37,38 @@ func main() {
 
 	// get collection as ref'
 	collection := client.Database(DATABASE_NAME).Collection(COLLECTION_NAME)
-
-	yamlContent := utils.GetStringFromFile("pod.yaml")
-	kubeObject := KubeObject{"Pod", yamlContent}
-	// insertSingleDocument(kubeObject, collection)
-	printSingleDocument(kubeObject.ObjectName, collection)
-	// updatedYamlContent := utils.GetStringFromFile("podupdate.yaml")
-	// updatedKubeObject := KubeObject{"Pod", updatedYamlContent}
-	// updateDocument(updatedKubeObject, collection)
-	// deleteSingleDocument(kubeObject.ObjectName, collection)
-	// printSingleDocument(kubeObject.ObjectName, collection)
-
+	return collection, cancel
 }
 
-func insertSingleDocument(kubeObject KubeObject, collection *mongo.Collection) {
+func InsertSingleDocument(byteKubeObject []byte, collection *mongo.Collection) *mongo.InsertOneResult {
+	var kubeObject KubeObject
+	json.Unmarshal(byteKubeObject, &kubeObject)
 	fmt.Println("Inserting document with object name: ", kubeObject.ObjectName)
-	_, e := collection.InsertOne(context.TODO(), kubeObject)
+	insertOneResult, e := collection.InsertOne(context.TODO(), kubeObject)
 	utils.CheckError(e)
+	return insertOneResult
 }
 
-func printSingleDocument(objectName string, collection *mongo.Collection) {
+func GetSingleDocument(objectName string, collection *mongo.Collection) []byte {
 	var kubeObject KubeObject
 	filter := bson.D{{Key: "objectname", Value: objectName}} // 'Key:' and 'Value:' keywords can be omitted		filter := bson.D{{"name", name}}	this works as well
-	fmt.Println("Printing document with object name: ", objectName)
 	e := collection.FindOne(context.TODO(), filter).Decode(&kubeObject)
 	utils.CheckError(e)
-	fmt.Println(kubeObject.YamlContent)
+	byteKubeObject, e := json.Marshal(kubeObject)
+	utils.CheckError(e)
+	return byteKubeObject
+	// return kubeObject.YamlContent
 }
 
-func deleteSingleDocument(objectName string, collection *mongo.Collection) {
+func DeleteSingleDocument(objectName string, collection *mongo.Collection) *mongo.DeleteResult {
 	filter := bson.D{{Key: "objectname", Value: objectName}}
 	fmt.Println("Deleting document with object name: ", objectName)
-	_, e := collection.DeleteMany(context.TODO(), filter)
+	deleteResult, e := collection.DeleteMany(context.TODO(), filter)
 	utils.CheckError(e)
-
+	return deleteResult
 }
 
-func updateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) {
+func UpdateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) {
 	filter := bson.D{{Key: "objectname", Value: updatedKubeObject.ObjectName}}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{ // '$set' set the value of the field in the document
@@ -85,7 +81,7 @@ func updateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) 
 	utils.CheckError(e)
 }
 
-func getAllObjects(collection *mongo.Collection) {
+func GetAllObjects(collection *mongo.Collection) []byte {
 	var results []*KubeObject
 	findOptions := options.Find()
 	cur, e := collection.Find(context.TODO(), bson.D{{}}, findOptions) // 'bosn.D{{}}' to apply any filter. Here the filter is empty.
@@ -103,12 +99,12 @@ func getAllObjects(collection *mongo.Collection) {
 	utils.CheckError(e)
 	fmt.Println()
 	cur.Close(context.TODO())
-	for _, value := range results {
-		fmt.Println(*value)
-	}
+	byteAllKubeObjects, e := json.Marshal(results)
+	utils.CheckError(e)
+	return byteAllKubeObjects
 }
 
-func insertMultipleDocument(collection *mongo.Collection, multipleObjects []interface{}) {
+func InsertMultipleDocument(collection *mongo.Collection, multipleObjects []interface{}) {
 	_, e := collection.InsertMany(context.TODO(), multipleObjects)
 	utils.CheckError(e)
 }
