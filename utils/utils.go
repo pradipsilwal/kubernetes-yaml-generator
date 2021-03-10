@@ -33,3 +33,11 @@ func GetStrings(fileName string) ([]string, error) {
 	}
 	return lines, err
 }
+
+func GetStringFromSlice(lines []string) string {
+	var stringLine string
+	for _, line := range lines {
+		stringLine = stringLine + line + "\n"
+	}
+	return stringLine
+}
