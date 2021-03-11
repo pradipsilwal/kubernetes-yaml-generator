@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/99-devops/kubernetes-yamal-generator/database"
+	"github.com/99-devops/kubernetes-yaml-generator/database"
 	"github.com/gorilla/mux"
 )
 

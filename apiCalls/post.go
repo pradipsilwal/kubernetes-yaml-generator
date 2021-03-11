@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/99-devops/kubernetes-yamal-generator/utils"
+	"github.com/99-devops/kubernetes-yaml-generator/utils"
 )
 
 func post() {
