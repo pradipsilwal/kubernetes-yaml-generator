@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/99-devops/kubernetes-yaml-generator/utils"
+	"github.com/pradipsilwal/kubernetes-yaml-generator/utils"
 )
 
 //delete sends delete request to the api server to delete the object

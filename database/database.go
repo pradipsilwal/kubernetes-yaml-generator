@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/99-devops/kubernetes-yaml-generator/utils"
+	"github.com/pradipsilwal/kubernetes-yaml-generator/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
