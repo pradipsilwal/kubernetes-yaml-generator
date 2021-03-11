@@ -6,6 +6,10 @@ type KubeObject struct {
 }
 
 func main() {
+
+	//performing delete request to the delete api
 	delete("Deployment")
+
+	//sending post request to post api
 	// post()
 }

@@ -12,6 +12,7 @@ func CheckError(e error) {
 	}
 }
 
+//GetFileContentInLines reads a file and and returns the content of of the files as a list of lines
 func GetFileContentInLines(fileName string) ([]string, error) {
 	var lines []string
 	file, err := os.Open(fileName)
@@ -19,7 +20,6 @@ func GetFileContentInLines(fileName string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -35,6 +35,7 @@ func GetFileContentInLines(fileName string) ([]string, error) {
 	return lines, err
 }
 
+//GetStringFromLines takes list of lines and converts then in a string separated by \n (new line)
 func GetStringFromLines(lines []string) string {
 	var stringLine string
 	for _, line := range lines {
@@ -42,6 +43,8 @@ func GetStringFromLines(lines []string) string {
 	}
 	return stringLine
 }
+
+//GetStringFromFile returns the content of the file in string format.
 func GetStringFromFile(fileName string) string {
 	fileInLines, e := GetFileContentInLines(fileName)
 	CheckError(e)

@@ -20,14 +20,19 @@ type KubeObject struct {
 	YamlContent string `json:"YamlContent"`
 }
 
+//CreateConnection creates a connection to MongoDB Atlas database and returns *mongo.Collection
+//along with context.CancelFunc
 func CreateConnection() (*mongo.Collection, context.CancelFunc) {
+
+	//Defining the credentials to be taken from environment variables
 	DATABASE_NAME := os.Getenv("DATABASE_NAME")
 	COLLECTION_NAME := os.Getenv("COLLECTION_NAME")
 	DATABASE_USERNAME := os.Getenv("DATABASE_USERNAME")
 	DATABASE_PASSWORD := os.Getenv("DATABASE_PASSWORD")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	// defer cancel()
+
+	//Creating the connection
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
 		"mongodb+srv://"+DATABASE_USERNAME+":"+DATABASE_PASSWORD+"@cluster0.u43qj.mongodb.net/"+DATABASE_NAME+"?retryWrites=true&w=majority",
 	))
@@ -35,11 +40,13 @@ func CreateConnection() (*mongo.Collection, context.CancelFunc) {
 		log.Fatal(err)
 	}
 
-	// get collection as ref'
+	//Get collection as ref'
 	collection := client.Database(DATABASE_NAME).Collection(COLLECTION_NAME)
+
 	return collection, cancel
 }
 
+//InsertSIngleDocument inserts the Single document to mongodb collection
 func InsertSingleDocument(byteKubeObject []byte, collection *mongo.Collection) *mongo.InsertOneResult {
 	var kubeObject KubeObject
 	json.Unmarshal(byteKubeObject, &kubeObject)
@@ -49,6 +56,7 @@ func InsertSingleDocument(byteKubeObject []byte, collection *mongo.Collection) *
 	return insertOneResult
 }
 
+//GetSingleDocument gets single document from database that matches the kubernetes Object Name
 func GetSingleDocument(objectName string, collection *mongo.Collection) []byte {
 	var kubeObject KubeObject
 	filter := bson.D{{Key: "objectname", Value: objectName}} // 'Key:' and 'Value:' keywords can be omitted		filter := bson.D{{"name", name}}	this works as well
@@ -57,9 +65,9 @@ func GetSingleDocument(objectName string, collection *mongo.Collection) []byte {
 	byteKubeObject, e := json.Marshal(kubeObject)
 	utils.CheckError(e)
 	return byteKubeObject
-	// return kubeObject.YamlContent
 }
 
+//DeleteSingleDocument deletes the object document from database that matches the given object name
 func DeleteSingleDocument(objectName string, collection *mongo.Collection) *mongo.DeleteResult {
 	filter := bson.D{{Key: "objectname", Value: objectName}}
 	fmt.Println("Deleting document with object name: ", objectName)
@@ -68,6 +76,7 @@ func DeleteSingleDocument(objectName string, collection *mongo.Collection) *mong
 	return deleteResult
 }
 
+//UpdateDocument adds new kubernetes object in the database
 func UpdateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) {
 	filter := bson.D{{Key: "objectname", Value: updatedKubeObject.ObjectName}}
 	update := bson.D{
@@ -81,6 +90,7 @@ func UpdateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) 
 	utils.CheckError(e)
 }
 
+//GetAllObjects gets all the objects from mongo collection
 func GetAllObjects(collection *mongo.Collection) []byte {
 	var results []*KubeObject
 	findOptions := options.Find()
@@ -104,7 +114,7 @@ func GetAllObjects(collection *mongo.Collection) []byte {
 	return byteAllKubeObjects
 }
 
-func InsertMultipleDocument(collection *mongo.Collection, multipleObjects []interface{}) {
-	_, e := collection.InsertMany(context.TODO(), multipleObjects)
-	utils.CheckError(e)
-}
+// func InsertMultipleDocument(collection *mongo.Collection, multipleObjects []interface{}) {
+// 	_, e := collection.InsertMany(context.TODO(), multipleObjects)
+// 	utils.CheckError(e)
+// }
