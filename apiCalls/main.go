@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/99-devops/kubernetes-yamal-generator/utils"
+	"github.com/pradipsilwal/kubernetes-yaml-generator/utils"
 )
 
 type KubeObject struct {
