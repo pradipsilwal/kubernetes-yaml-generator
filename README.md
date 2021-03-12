@@ -7,7 +7,7 @@ The application has 2 parts:
 2. Database
 
 ## API Server
-The API server is used to provide access the data to and from the database. This API server provides 5 operations:
+The API server is used to provide access the data to and from the database. This API server provides following operations:
 1. Create
 2. Read
 3. Update
