@@ -7,11 +7,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/pradipsilwal/kubernetes-yaml-generator/database"
 	"github.com/gorilla/mux"
+	"github.com/pradipsilwal/kubernetes-yaml-generator/database"
 )
 
-type KubeObject struct {
+type kubeObject struct {
 	ObjectName  string `json:"ObjectName"`
 	YamlContent string `json:"YamlContent"`
 }
@@ -28,7 +28,7 @@ func getAllKubeObjects(w http.ResponseWriter, r *http.Request) {
 	collection, cancel := database.CreateConnection()
 	defer cancel()
 	byteAllKubeObjects := database.GetAllObjects(collection)
-	var allKubeObject []KubeObject
+	var allKubeObject []kubeObject
 	json.Unmarshal(byteAllKubeObjects, &allKubeObject)
 	json.NewEncoder(w).Encode(allKubeObject)
 
@@ -42,7 +42,7 @@ func getSingleKubeObject(w http.ResponseWriter, r *http.Request) {
 	collection, cancel := database.CreateConnection()
 	defer cancel()
 	byteYamlContent := database.GetSingleDocument(objectName, collection)
-	var object KubeObject
+	var object kubeObject
 	json.Unmarshal(byteYamlContent, &object)
 	json.NewEncoder(w).Encode(object)
 }

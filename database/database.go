@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type KubeObject struct {
+type kubeObject struct {
 	ObjectName  string `json:"ObjectName"`
 	YamlContent string `json:"YamlContent"`
 }
@@ -48,21 +48,21 @@ func CreateConnection() (*mongo.Collection, context.CancelFunc) {
 
 //InsertSIngleDocument inserts the Single document to mongodb collection
 func InsertSingleDocument(byteKubeObject []byte, collection *mongo.Collection) *mongo.InsertOneResult {
-	var kubeObject KubeObject
-	json.Unmarshal(byteKubeObject, &kubeObject)
-	fmt.Println("Inserting document with object name: ", kubeObject.ObjectName)
-	insertOneResult, e := collection.InsertOne(context.TODO(), kubeObject)
+	var kObject kubeObject
+	json.Unmarshal(byteKubeObject, &kObject)
+	fmt.Println("Inserting document with object name: ", kObject.ObjectName)
+	insertOneResult, e := collection.InsertOne(context.TODO(), kObject)
 	utils.CheckError(e)
 	return insertOneResult
 }
 
 //GetSingleDocument gets single document from database that matches the kubernetes Object Name
 func GetSingleDocument(objectName string, collection *mongo.Collection) []byte {
-	var kubeObject KubeObject
+	var kObject kubeObject
 	filter := bson.D{{Key: "objectname", Value: objectName}} // 'Key:' and 'Value:' keywords can be omitted		filter := bson.D{{"name", name}}	this works as well
-	e := collection.FindOne(context.TODO(), filter).Decode(&kubeObject)
+	e := collection.FindOne(context.TODO(), filter).Decode(&kObject)
 	utils.CheckError(e)
-	byteKubeObject, e := json.Marshal(kubeObject)
+	byteKubeObject, e := json.Marshal(kObject)
 	utils.CheckError(e)
 	return byteKubeObject
 }
@@ -77,7 +77,7 @@ func DeleteSingleDocument(objectName string, collection *mongo.Collection) *mong
 }
 
 //UpdateDocument adds new kubernetes object in the database
-func UpdateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) {
+func UpdateDocument(updatedKubeObject kubeObject, collection *mongo.Collection) {
 	filter := bson.D{{Key: "objectname", Value: updatedKubeObject.ObjectName}}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{ // '$set' set the value of the field in the document
@@ -92,14 +92,14 @@ func UpdateDocument(updatedKubeObject KubeObject, collection *mongo.Collection) 
 
 //GetAllObjects gets all the objects from mongo collection
 func GetAllObjects(collection *mongo.Collection) []byte {
-	var results []*KubeObject
+	var results []*kubeObject
 	findOptions := options.Find()
 	cur, e := collection.Find(context.TODO(), bson.D{{}}, findOptions) // 'bosn.D{{}}' to apply any filter. Here the filter is empty.
 	utils.CheckError(e)
 
 	// Iterating through the cursor for each value
 	for cur.Next(context.TODO()) {
-		var object KubeObject
+		var object kubeObject
 		e := cur.Decode(&object)
 		utils.CheckError(e)
 		results = append(results, &object)
