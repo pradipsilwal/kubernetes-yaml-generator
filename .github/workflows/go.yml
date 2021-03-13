@@ -22,6 +22,9 @@ jobs:
       run: |
         go version
         go get -u golang.org/x/lint/golint
+        go get -u github.com/gorilla/mux
+        go get -u github.com/pradipsilwal/kubernetes-yaml-generator/database
+        go get -u github.com/pradipsilwal/kubernetes-yaml-generator/utils
     
     - name: Run build
       run: go build ./api/
