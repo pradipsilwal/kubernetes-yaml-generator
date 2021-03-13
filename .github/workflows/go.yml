@@ -27,7 +27,7 @@ jobs:
         go get -u github.com/pradipsilwal/kubernetes-yaml-generator/utils
     
     - name: Run build
-      run: go build ./api/
+      run: go build /api/main.go
     
     - name: Run vet and lint
       run: |
