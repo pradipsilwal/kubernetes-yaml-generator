@@ -75,7 +75,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/kubeObject", createNewObjectYaml).Methods("POST")
 	myRouter.HandleFunc("/kubeObject/{ObjectName}", deleteObjectYaml).Methods("DELETE")
 	myRouter.HandleFunc("/kubeObjects/{ObjectName}", getSingleKubeObject)
-	log.Fatal(http.ListenAndServe(":10000", myRouter))
+	log.Fatal(http.ListenAndServe(":8080", myRouter))
 }
 
 func main() {
