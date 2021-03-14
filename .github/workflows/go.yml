@@ -58,7 +58,7 @@ jobs:
         context: ./
         file: ./Dockerfile
         push: true
-        tags: test:v1
+        tags: pradipsilwal/test:v1
     
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
