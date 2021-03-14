@@ -48,7 +48,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     
     - name: Set up Docker Buildx
-      id: Buildx
+      id: buildx
       uses: docker/setup-buildx-action@v1
 
     - name: Build and Push
@@ -62,4 +62,3 @@ jobs:
     
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
-      
